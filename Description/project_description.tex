@@ -1,0 +1,153 @@
+\documentclass[12pt]{article}
+
+\usepackage{url}
+\usepackage{fullpage}
+\usepackage{amssymb,amsfonts}
+\usepackage{amsmath}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\usepackage{varwidth}
+
+\usepackage{hyperref}
+\hypersetup{
+    linktoc=all,     %set to all if you want both sections and subsections linked
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\usepackage[toc,page]{appendix}
+
+\DeclareMathOperator*{\E}{\mathbb{E}}
+\let\Pr\relax
+\DeclareMathOperator*{\Pr}{\mathbb{P}}
+
+\DeclareMathOperator*{\Lap}{\text{Lap}}
+
+\DeclareMathOperator*{\Geo}{\text{Geo}}
+
+\def\cl{\lstinline}
+
+\title{CS 208 Project Description:\\ A Modular System for Local Differential Privacy}
+\author{Andrew Shackelford and Peter Chang}
+\date{April 9, 2019}
+\setcounter{tocdepth}{3}
+
+\begin{document}
+
+\maketitle
+
+\section*{Research Questions}
+
+\noindent
+
+With this project, we aim to address several research questions.
+
+\begin{itemize}
+    \item What is the best way to implement local differential privacy?
+    \item Why have large tech companies only implemented local differential privacy in small instances?
+    \item What needs must a local differential privacy framework address?
+    \item How could already existing local differential privacy frameworks be improved so that they are easier to implement?
+\end{itemize}
+
+Local differential privacy has been touted by many tech companies as a way to truly revolutionize collecting telemetry data. Despite these claims however, the current implementations of local differential privacy are few and far between. \href{https://machinelearning.apple.com/2017/12/06/learning-with-privacy-at-scale.html}{Apple} uses local differential privacy to detect new emojis, phrases, and some other small telemetry data. However, \href{https://arxiv.org/abs/1709.02753}{Tang et al.} found concerning amounts of privacy loss over multiple analytics reports. \href{https://github.com/google/rappor}{Google} uses RAPPOR to collect analytics data from Chrome, yet has not updated the software since 2016, and is currently phasing it out. Lastly, \href{https://www.microsoft.com/en-us/research/blog/collecting-telemetry-data-privately/}{Microsoft Research} published a paper and wrote a blog post about collecting telemetry data privately, but has not actually publicized the use of local differential privacy in any of its products.
+
+\medskip
+
+As a result, the only open-source local DP product, RAPPOR, is now being phased out, and there are few if any open-source local differential privacy frameworks. While there have been many frameworks for centralized differential privacy, such as \href{https://github.com/ektelo}{Ektelo}, \href{https://arxiv.org/abs/1609.04340}{Psi ($\Psi$)}, and \href{https://www.microsoft.com/en-us/research/project/privacy-integrated-queries-pinq/}{PinQ}, there exist no equivalent frameworks for local differential privacy.
+
+\medskip
+
+Therefore, we aim to design and describe a modular, extensible framework for local differential privacy, so that any interested party can easily implement local DP and know that their data collection mechanism is private. If time allows, we hope to implement a small subset of the framework as a proof of concept, allowing for others to extend the framework to their needs. By doing so, we hope that we can increase utilization of differential privacy throughout the industry, and further protect the privacy of users.
+
+\section*{Past Work}
+
+\subsection*{Google}
+
+\noindent
+
+Google developed and deployed Randomized Aggregatable Privacy-Preserving Ordinal Response (RAPPOR) to collect statistics through Google's Chrome Web browser.
+
+\medskip
+
+RAPPOR employs two stages of randomized response. First, using a Bloom filter containing the client's private data, it generates a ``fake Bloom filter" whose bits are determined via randomized response using the original Bloom filter's bits. This filter is memoized and permanently reused when reporting the client's particular value it represents. Next, a bit array is generated with its bit elements determined via randomized response using the bits of the fake Bloom filter from the previous step. This randomization step is recomputed for each transmission of data.
+
+\medskip
+
+Note that since the first randomization step is not reversible via averaging over repeated observations, it ensures long-term privacy. On the other hand, the second randomization step, which is reversible via averaging, makes it very difficult for adversaries to uniquely identify a client based on the values of the permanent Bloom filter, and hence ensures short-term privacy.
+
+\subsection*{Apple}
+
+\noindent
+
+Apple uses local differential privacy in several use cases in order to learn more about its users' habits, specifically estimating the frequencies of elements, without compromising privacy. Its main use cases include determining which emojis are popular, identifying websites that high resource usage or crash often, or determining which custom phrases are popular.
+
+\medskip
+
+In contrast to Google, Apple does not employ two stages of randomized response. Instead, Apple immediately discards any identifying information, including IP address, as soon as the information is received at the server. Only then is the data ingested, aggregated, and eventually analyzed.
+
+\medskip
+
+In order to reduce transmission costs, Apple utilizes both the Count Mean Sketch and the Hadamard Count Mean Sketch algorithms to decrease the sizes of the resulting differentially private vectors. Apple also uses the Sequence Fragment Puzzle algorithm in order to detect new phrases without having to loop through all possible combinations.
+
+\section*{Anticipated Approach}
+
+\noindent
+
+In order to start on this project, we will look at existing frameworks, such as Apple's analytic reports and Google's RAPPOR, and determine what features are necessary for a local differential privacy framework. We will then design an outline of our framework that would be modular and extensible for all of our desired features. Then, we will detail how our framework would incorporate these features, and what a plausible local DP pipeline could look like. Finally, if time allows, we will implement such a pipeline, or a subset thereof, so that we can test our local differential privacy framework in action.
+
+\section*{Timeline}
+
+\noindent
+
+Below are a set of deadlines that we hope will guide our completion of this project.
+
+\begin{itemize}
+    \item April 16: Develop an outline of the local differential privacy framework
+    \item April 23: Finish the complete blueprint and implementation guidelines for the framework
+    \item April 30: Finish the first part of the paper that pertains to the framework details
+    \item May 7: Implement a subset of the framework in code, and finish the second part of the paper that pertains to the implementation
+    \item May 10: Revise paper for clarity and submit draft
+    \item May 13: Create presentation
+    \item May 17: Incorporate suggestions from professors into final draft of paper
+\end{itemize}
+
+\section*{Fallback Plans}
+
+\noindent
+
+As described above, we consider our project one with two major components: theoretical blueprint and the actual implementation. If the first step proves a significantly difficult, time-consuming, and fulfilling task on its own, we would be happy to consider the implementation step a project for the future.
+
+\medskip
+
+In the case that even the first step proves too challenging, we will limit the scope of our project to suggesting improvements for existing frameworks. For example, in class Professor Vadhan suggested that RAPPOR may perform the best when using just one hash function for its Bloom filter, and that a Bloom filter may not be the appropriate data structure at all. We could follow and extend this approach by suggesting areas of improvement and experimentally verifying them. Since RAPPOR is the only open-source local-DP framework, experimental work may only be possible with RAPPOR and the work concerning other frameworks may be purely theoretical.
+
+\bibliography{ref}
+\end{document}
