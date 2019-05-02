@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Submit Data
+{% endblock %}
+
+{% block main %}
+    <script>
+        $(function(){ 
+            console.log("hey");
+
+            true_button = document.getElementById('true_button');
+            true_button.addEventListener('click', () => {
+                //console.log("True");
+                randomized_response(1.);
+            });
+
+            false_button = document.getElementById('false_button');
+            false_button.addEventListener('click', () => {
+                //console.log("False");
+                randomized_response(-1.);
+            });
+        });
+
+        function randomized_response(response) {
+            //console.log(response);
+            
+            random = Math.random();
+
+            //console.log(random);
+
+            correct_prob = Math.exp({{parameters.epsilon}}) / (Math.exp({{parameters.epsilon}}) + 1.)
+
+            if (random < correct_prob) {
+                console.log(response);
+            } else {
+                console.log(-1. * response);
+            }
+        }
+
+
+    </script>
+    <h1>Submit Data for Analysis</h1>
+    <div style="margin-bottom: 10px">
+        <select>
+            {% for dataset in datasets %}
+                <option value="{{dataset.id}}">{{dataset.text}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <button id="true_button" on-click="randomized_response()" class="btn btn-success">True</button>
+        <button id="false_button" on-click="randomized_response()" class="btn btn-danger">False</button>
+    </div>
+{% endblock %}
