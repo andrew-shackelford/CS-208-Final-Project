@@ -4,10 +4,17 @@ import sqlite3
 import random
 import string
 import numpy as np
+import os
 
 app = Flask(__name__)
 
 letters = string.ascii_lowercase
+
+# check for correct path to DB due to limitations with Python Anywhere
+if os.path.isfile('CS-208-Final-Project/Website/data.db'):
+    db_path = 'CS-208-Final-Project/Website/data.db'
+else:
+    db_path = 'data.db'
 
 # datasets
 global_datasets = [{'id': 0, 'text': 'Who is your favorite professor? Salil (true), or James (false)?'},
@@ -57,7 +64,7 @@ def submit_data():
 
         # if we have privacy budget left, submit it
         if messages['was_successful']:
-            conn = sqlite3.connect('data.db')
+            conn = sqlite3.connect(db_path)
             c = conn.cursor()
             c.execute("INSERT INTO results VALUES (?, ?, ?)", (messages['response_id'], messages['dataset_id'], messages['response']))
             conn.commit()
@@ -85,7 +92,7 @@ def submit_multiple_data():
         messages['response_id'] = ''.join(random.choice(letters) for i in range(10))
 
         # submit to database
-        conn = sqlite3.connect('data.db')
+        conn = sqlite3.connect(db_path)
         c = conn.cursor()
         c.execute("INSERT INTO results VALUES (?, ?, ?)", (messages['response_id'], messages['dataset_id'], messages['response']))
         conn.commit()
@@ -125,7 +132,7 @@ def view_data():
     dataset = global_datasets[dataset_id]
 
     # get data
-    conn = sqlite3.connect('data.db')
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute("SELECT * FROM results where dataset_id = ?", (dataset_id,))
     results = c.fetchall()
