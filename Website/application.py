@@ -100,7 +100,11 @@ def submit_multiple_data():
 
         return ""
     else:
-        return render_template("submit_multiple_data.html", datasets=global_datasets)
+        eps_one_datasets = []
+        for dataset in global_datasets:
+            if global_parameters[dataset['id']]['indiv_epsilon_val'] == 1:
+                eps_one_datasets.append(dataset)
+        return render_template("submit_multiple_data.html", datasets=eps_one_datasets)
 
 # route to choose dataset from which to view data
 @app.route("/view_dataset", methods=["GET", "POST"])

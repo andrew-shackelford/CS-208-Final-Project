@@ -16,6 +16,7 @@ Submit Multiple Data (Debug Only)
         });
         
         function randomized_response() {
+
             // grab variables -- in this contrived debug example, we'll force epsilon to be 1
             var pop_mean = document.getElementById("pop_mean").value;  
             var epsilon = 1.;
@@ -60,7 +61,7 @@ Submit Multiple Data (Debug Only)
                     form.append(field);
                 });
                 $(document.body).append(form);
-
+                
                 // send AJAX request to that we can send multiple POST requests without reloading
                 $.ajax({
                     url:window.location.href,
@@ -71,11 +72,15 @@ Submit Multiple Data (Debug Only)
                 });
             }
             // let the user know that we've submitted all our responses
-            console.log("done submitting responses");
+            $('#submit_alert').slideDown();
+            $("#submit_alert").fadeTo(3000, 500).slideUp(500, function(){
+                $("#submit_alert").slideUp(500);
+            });
         }
     </script>
     
     <h1>Submit Multiple Data (Debug Only)</h1>
+
     <div>
         <label>Choose Dataset</label>
         <select id="dataset_id" style="margin-bottom: 10px">
@@ -83,6 +88,9 @@ Submit Multiple Data (Debug Only)
                 <option value="{{dataset.id}}">{{dataset.text}}</option>
             {% endfor %}
         </select>
+    </div>
+    <div id="submit_alert" class="alert alert-success collapse" role="alert">
+      Your responses have been submitted!
     </div>
     <div style="margin-bottom: 10px">
         <label>Desired Population Proportion</label>
