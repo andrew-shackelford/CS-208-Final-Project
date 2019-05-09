@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Submit Multiple Data (Debug Only)
+{% endblock %}
+
+{% block main %}
+    <script>
+
+        $(function(){ 
+            // add button listener
+            rr_button = document.getElementById('rr_button');
+            rr_button.addEventListener('click', () => {
+                randomized_response();
+            });
+        });
+        
+        function randomized_response() {
+            // grab variables -- in this contrived debug example, we'll force epsilon to be 1
+            var pop_mean = document.getElementById("pop_mean").value;  
+            var epsilon = 1.;
+            var num_responses = document.getElementById("num_rep").value;
+            var dataset_id = document.getElementById("dataset_id").value;
+
+            // submit data num_responses times
+            for (var i = 0; i < num_responses; i++) {
+                // calculate response with proportion given by user
+                var response;
+                val_random = Math.random();
+                if (val_random < pop_mean) {
+                    response = 1;
+                } else {
+                    response = -1;
+                }
+
+                // calculate randomized response
+                correct_prob = Math.exp(epsilon) / (Math.exp(epsilon) + 1.);
+                random = Math.random();
+                if (random < correct_prob) {
+                    submitted_response = response;
+                } else {
+                    submitted_response = -1. * response;
+                }
+                was_successful = 1;
+
+                // craft POST data
+                outputs = {'dataset_id' : dataset_id,
+                           'response': submitted_response,
+                           'was_successful' : was_successful};
+
+                // craft POST form
+                var form = $('<form></form>');
+                form.attr("method", "post");
+                form.attr("action", window.location.href);
+                $.each(outputs, function(key, value) {
+                    var field = $('<input></input>');
+                    field.attr("type", "hidden");
+                    field.attr("name", key);
+                    field.attr("value", value);
+                    form.append(field);
+                });
+                $(document.body).append(form);
+
+                // send AJAX request to that we can send multiple POST requests without reloading
+                $.ajax({
+                    url:window.location.href,
+                    type:'post',
+                    data:form.serialize(),
+                    success:function(){
+                    }
+                });
+            }
+            // let the user know that we've submitted all our responses
+            console.log("done submitting responses");
+        }
+    </script>
+    
+    <h1>Submit Multiple Data (Debug Only)</h1>
+    <div>
+        <label>Choose Dataset</label>
+        <select id="dataset_id" style="margin-bottom: 10px">
+            {% for dataset in datasets %}
+                <option value="{{dataset.id}}">{{dataset.text}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div style="margin-bottom: 10px">
+        <label>Desired Population Proportion</label>
+        <input class="form-control" type="number" value="0.5" id="pop_mean">
+    </div>
+    <div style="margin-bottom: 10px">
+        <label>Number of Responses</label>
+        <input class="form-control" type="number" value="1" id="num_rep">
+    </div>
+    <div>
+        <button id="rr_button" on-click="randomized_response()" class="btn btn-primary">Perform Randomized Response</button>
+    </div>
+{% endblock %}

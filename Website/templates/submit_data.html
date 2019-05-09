@@ -6,48 +6,81 @@ Submit Data
 
 {% block main %}
     <script>
-        $(function(){ 
-            console.log("hey");
 
+        $(function(){ 
+            // add button listeners
             true_button = document.getElementById('true_button');
             true_button.addEventListener('click', () => {
-                //console.log("True");
                 randomized_response(1.);
             });
-
             false_button = document.getElementById('false_button');
             false_button.addEventListener('click', () => {
-                //console.log("False");
                 randomized_response(-1.);
             });
+
+            // ONLY FOR DEBUG: CLEAR LOCAL STORAGE ON LOAD
+            localStorage.clear();
+
+            // Set starting epsilon value if not present
+            if (!localStorage.getItem('{{dataset.id}}')) {
+                localStorage.setItem('{{dataset.id}}', {{parameters.total_epsilon_val}});
+            }
+
+            // set epsilon remaining text
+            h3_eps_remaining.innerText = "Epsilon remaining: " + localStorage.getItem('{{dataset.id}}');
         });
 
-        function randomized_response(response) {
-            //console.log(response);
-            
-            random = Math.random();
-
-            //console.log(random);
-
-            correct_prob = Math.exp({{parameters.epsilon}}) / (Math.exp({{parameters.epsilon}}) + 1.)
-
-            if (random < correct_prob) {
-                console.log(response);
+        function randomized_response(response) {       
+            if (localStorage.getItem('{{dataset.id}}') - {{parameters.indiv_epsilon_val}} < 0) {
+                // if out of privacy budget, submit garbage value
+                console.log("Out of privacy budget, no response submitted.");
+                submitted_response = 0;
+                was_successful = 0;
             } else {
-                console.log(-1. * response);
+                // if privacy budget remaining
+
+                // calculate probability of revealing truth, update remaining epsilon
+                correct_prob = Math.exp({{parameters.indiv_epsilon_val}}) / (Math.exp({{parameters.indiv_epsilon_val}}) + 1.);
+                localStorage.setItem('{{dataset.id}}', localStorage.getItem('{{dataset.id}}') - {{parameters.indiv_epsilon_val}});
+
+                // submit true value with corresponding probability
+                random = Math.random();
+                if (random < correct_prob) {
+                    console.log("Submitted response " + response);
+                    submitted_response = response;
+                } else {
+                    console.log("Submitted response " + -1. * response);
+                    submitted_response = -1. * response;
+                }
+                was_successful = 1;
             }
+
+            // craft POST data
+            outputs = {'dataset_id' : '{{dataset.id}}',
+                       'response': submitted_response,
+                       'was_successful' : was_successful};
+
+            // craft POST form and submit
+            var form = $('<form></form>');
+            form.attr("method", "post");
+            form.attr("action", window.location.href);
+            $.each(outputs, function(key, value) {
+                var field = $('<input></input>');
+                field.attr("type", "hidden");
+                field.attr("name", key);
+                field.attr("value", value);
+                form.append(field);
+            });
+            $(document.body).append(form);
+            form.submit();
         }
-
-
     </script>
+    
     <h1>Submit Data for Analysis</h1>
-    <div style="margin-bottom: 10px">
-        <select>
-            {% for dataset in datasets %}
-                <option value="{{dataset.id}}">{{dataset.text}}</option>
-            {% endfor %}
-        </select>
-    </div>
+    <h2>Dataset: {{dataset.text}}
+    <h3>Total epsilon value: {{parameters.total_epsilon_val}}</h3>
+    <h3>Epsilon per response: {{parameters.indiv_epsilon_val}}</h3>
+    <h3 id="h3_eps_remaining">Epsilon remaining: </h3>
     <div>
         <button id="true_button" on-click="randomized_response()" class="btn btn-success">True</button>
         <button id="false_button" on-click="randomized_response()" class="btn btn-danger">False</button>

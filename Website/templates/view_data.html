@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Choose Dataset
+{% endblock %}
+
+{% block main %}
+    <h1>Viewing Dataset</h1>
+    <h2>{{dataset.text}}</h2>
+    <h3>Scaled population mean is: {{dataset.scaled_mean}}</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Response ID #</th>
+          <th scope="col">Response Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for response in responses %}
+            <tr>
+                <th scope="row">{{response.response_id}}</th>
+                <td>{{response.response}}</td>
+            </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+{% endblock %}
