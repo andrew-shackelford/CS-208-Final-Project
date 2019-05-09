@@ -1,3 +1,14 @@
+"""
+Andrew Shackelford
+ashackelford@college.harvard.edu
+
+Peter Chang
+chang04@college.harvard.edu
+
+CS 208 - Spring 2019
+Final Project: A Modular System for Local Differential Privacy
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import binom

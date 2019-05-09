@@ -1,3 +1,14 @@
+"""
+Andrew Shackelford
+ashackelford@college.harvard.edu
+
+Peter Chang
+chang04@college.harvard.edu
+
+CS 208 - Spring 2019
+Final Project: A Modular System for Local Differential Privacy
+"""
+
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 import json
 import sqlite3
