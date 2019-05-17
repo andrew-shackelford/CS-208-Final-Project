@@ -18,6 +18,10 @@ Submit Multiple Data (Debug Only)
 {% block main %}
     <script>
 
+        function secureMathRandom() {
+            return window.crypto.getRandomValues(new Uint32Array(1))[0] / (2**32 - 1); //
+        }
+
         $(function(){ 
             // add button listener
             rr_button = document.getElementById('rr_button');
@@ -38,7 +42,7 @@ Submit Multiple Data (Debug Only)
             for (var i = 0; i < num_responses; i++) {
                 // calculate response with proportion given by user
                 var response;
-                val_random = Math.random();
+                val_random = secureMathRandom();
                 if (val_random < pop_mean) {
                     response = 1;
                 } else {
@@ -47,7 +51,7 @@ Submit Multiple Data (Debug Only)
 
                 // calculate randomized response
                 correct_prob = Math.exp(epsilon) / (Math.exp(epsilon) + 1.);
-                random = Math.random();
+                random = secureMathRandom();
                 if (random < correct_prob) {
                     submitted_response = response;
                 } else {

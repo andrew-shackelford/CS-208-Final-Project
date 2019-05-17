@@ -18,6 +18,10 @@ Submit Data
 {% block main %}
     <script>
 
+        function secureMathRandom() {
+            return window.crypto.getRandomValues(new Uint32Array(1))[0] / (2**32 - 1); //
+        }
+
         $(function(){ 
             // add button listeners
             true_button = document.getElementById('true_button');
@@ -55,7 +59,7 @@ Submit Data
                 localStorage.setItem('{{dataset.id}}', localStorage.getItem('{{dataset.id}}') - {{parameters.indiv_epsilon_val}});
 
                 // submit true value with corresponding probability
-                random = Math.random();
+                random = secureMathRandom();
                 if (random < correct_prob) {
                     console.log("Submitted response " + response);
                     submitted_response = response;
